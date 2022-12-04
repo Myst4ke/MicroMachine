@@ -1,6 +1,6 @@
 let cnv = document.getElementById("myCanvas");
 let ctx = cnv.getContext("2d");
-let rotateRate = 1;
+let rotateRate = 2;
 let maxSpeed = 3;
 let acceleration = 0.02;
 class vec2 {
@@ -13,6 +13,12 @@ let carSize = new vec2(40, 50);
 
 function degToRadian(angle){
     return angle * Math.PI / 180;
+}
+function rotatePoint(pointX, pointY, originX, originY, angle) {
+    angle = angle * Math.PI / 180.0;
+    let nx = Math.cos(angle) * (pointX-originX) - Math.sin(angle) * (pointY-originY) + originX;
+    let ny = Math.sin(angle) * (pointX-originX) + Math.cos(angle) * (pointY-originY) + originY;
+    return [nx, ny];
 }
 
 class sprite{
@@ -30,21 +36,30 @@ class player{
         this.id = id;
         this.sprite = new sprite('js/asset/car'+ id +'.png');
         this.collider;
-        this.topCorner = pos;
+        this.collider = [new vec2(pos.x, pos.y), new vec2(pos.x + carSize.x, pos.y), 
+            new vec2(pos.x + carSize.x, pos.y + carSize.y), new vec2(pos.x, pos.y + carSize.y)];
         this.origin = new vec2(pos.x + carSize.x/2, pos.y + carSize.y/2);
         this.direction = 0; // angle en °
         this.speed = 0;
     }
     draw(){
         ctx.save();
-        ctx.translate(this.topCorner.x, this.topCorner.y);
+        ctx.translate(this.origin.x, this.origin.y);
         ctx.rotate(this.direction * Math.PI / 180);
-        ctx.fillStyle = 'red';
-        //ctx.fillRect(0, 0, cnv.width, cnv.height);
-
         this.sprite.draw(0-carSize.x/2 , 0-carSize.y/2, carSize);
-
         ctx.restore();
+
+        //this.drawCollider();
+    }
+    drawCollider(){
+        ctx.beginPath();
+        ctx.strokeStyle = 'red';
+        ctx.moveTo(this.collider[0].x, this.collider[0].y);
+        ctx.lineTo(this.collider[1].x, this.collider[1].y);
+        ctx.lineTo(this.collider[2].x, this.collider[2].y);
+        ctx.lineTo(this.collider[3].x, this.collider[3].y);
+        ctx.lineTo(this.collider[0].x, this.collider[0].y);
+        ctx.stroke();
     }
     rotate(angle){
         if(angle > 0 && this.direction + angle > 360){
@@ -53,6 +68,28 @@ class player{
             this.direction = this.direction + angle | 0;
         }else{
             this.direction += angle;
+        }
+        this.rotateCollider(angle);
+    }
+    rotateCollider(angle){
+        for(let i =0; i < this.collider.length; i++){
+            let cx = this.collider[i].x,
+            cy = this.collider[i].y;
+            let newPoint = rotatePoint(cx, cy, this.origin.x, this.origin.y, angle)
+            this.collider[i].x = newPoint[0];
+            this.collider[i].y = newPoint[1];
+        }
+    }
+    moveColliderForward(){
+        for(let i =0; i < this.collider.length; i++){
+            this.collider[i].x =  (this.collider[i].x + this.speed * Math.cos(degToRadian(this.direction-90)));
+            this.collider[i].y  = (this.collider[i].y + this.speed * Math.sin(degToRadian(this.direction-90)));
+        }
+    }
+    moveColliderBackward(){
+        for(let i =0; i < this.collider.length; i++){
+            this.collider[i].x =  (this.collider[i].x + this.speed * Math.sin(degToRadian(-(this.direction))));
+            this.collider[i].y  = (this.collider[i].y + this.speed * Math.cos(degToRadian(-(this.direction))));
         }
     }
     moveForward(){
@@ -63,8 +100,7 @@ class player{
         }
         this.origin.x = (this.origin.x + this.speed * Math.cos(degToRadian(this.direction-90)));
         this.origin.y = (this.origin.y + this.speed * Math.sin(degToRadian(this.direction-90)));
-        this.topCorner.y = this.origin.y - carSize.y/2;
-        this.topCorner.x = this.origin.x - carSize.x/2;
+        this.moveColliderForward();
     }
     moveBackward(){
         if(this.speed < maxSpeed){
@@ -74,10 +110,26 @@ class player{
         }
         this.origin.x = (this.origin.x + this.speed * Math.sin(degToRadian(-(this.direction))));
         this.origin.y = (this.origin.y + this.speed * Math.cos(degToRadian(-(this.direction))));
-        this.topCorner.y = this.origin.y - carSize.y/2;
-        this.topCorner.x = this.origin.x - carSize.x/2;
+        this.moveColliderBackward();
     }
+    //Test de collision avec la route
+    collide(rectangle){}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Touches Joueur 1
 let keyP1 = [{ key: 'z', down: false }, { key: 'q', down: false },
@@ -182,8 +234,6 @@ function updatePos() {
             }
         }
     });
-    //player1.speed -= acceleration/2;
-    //player2.speed -= acceleration/2;
 }
 
 
