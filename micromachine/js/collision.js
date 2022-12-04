@@ -19,8 +19,8 @@ export class Rect {
         return false;
     }
     move_rect(dx, dy) {
-        this.xi += dx; this.xf += dx;
-        this.yi += dy; this.yf += dy;
+        this.x1 += dx; this.x2 += dx;
+        this.y1 += dy; this.y2 += dy;
     }
     draw_rect() {
         ctx.strokeStyle = "red";

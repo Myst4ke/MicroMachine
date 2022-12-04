@@ -1,19 +1,19 @@
 import { Sprite, Car } from "./class.js";
 import { Camera } from "./camera.js";
 import { Rect } from "./collision.js";
-i
 
 let cnv = document.getElementById("myCanvas");
 export let ctx = cnv.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 
+let tail_rout = 384;
 export let win_res = cnv.height;
 export let nb_rect = 1;
 
-let rect_collision = [new Rect(500, 300, 400, 700)];
+export let rect_collision = [new Rect(192, 0, 192+tail_rout, 750)];
 
-// TEST CAMERA
 let limite_camera = 20;
+// TEST CAMERA
 let mouse = {
     x: 400 ,
     y: cnv.height / 2
@@ -23,7 +23,7 @@ addEventListener("mousemove", (event) => {
     mouse.x = event.clientX;
     mouse.y = event.clientY;  
 });
-
+export let mouse_rect = new Rect(mouse.x-(58/2), mouse.y-(83 / 2), mouse.x-(58/2) + 58, mouse.x-(58/2)+83);
 /* ------------------------------------------------*/
 
 let map = new Sprite("./sprite/map.png");
@@ -41,9 +41,10 @@ function update() {
     ctx.fillRect(mouse.x - (58/ 2), mouse.y - (83 / 2), 58, 83);
     camera.moved_by_mouse(mouse, limite_camera, 0.05);
     ctx.strokeStyle = "red";
-    rect_collision[0].draw_rect();
+    for (let i = 0; i < nb_rect; i++) {
+        rect_collision[i].draw_rect();
+    }
 }
-
 
 function update_all () {
     update();
