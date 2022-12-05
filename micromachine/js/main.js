@@ -1,54 +1,76 @@
-import { Sprite, Car } from "./class.js";
-import { Camera } from "./camera.js";
-import { Rect } from "./collision.js";
-i
-
 let cnv = document.getElementById("myCanvas");
-export let ctx = cnv.getContext("2d");
+let ctx = cnv.getContext("2d");
 ctx.imageSmoothingEnabled = false;
+let updateFrequency = 30;
+//
 
-export let win_res = cnv.height;
-export let nb_rect = 1;
+function changeGameState() {
+    switch (gameState) {
+        case 'menu':
+            drawMenu();
+            break;
+        case 'solo':
+            draw();
+            countDown();
+            break;
+        case 'duo':
+            draw();
+            countDown();
+            break;
+    }
+}
 
-let rect_collision = [new Rect(500, 300, 400, 700)];
+function initDuoGame() {
+    pos1 = new vec2(300, 300);
+    player1 = new player(pos1, '1');
+    player1.draw();
 
-// TEST CAMERA
-let limite_camera = 20;
-let mouse = {
-    x: 400 ,
-    y: cnv.height / 2
-};
+    pos2 = new vec2(420, 300);
+    player2 = new player(pos2, '2');
+    player2.draw();
+}
+function initSoloGame() {
+    pos1 = new vec2(350, 300);
+    player1 = new player(pos1, '1');
+    player1.draw();
+}
 
-addEventListener("mousemove", (event) => {
-    mouse.x = event.clientX;
-    mouse.y = event.clientY;  
-});
-
-/* ------------------------------------------------*/
-
-let map = new Sprite("./sprite/map.png");
-let camera = new Camera(-100, -1400, 2);
-onload = function () {
-    
-    ctx.drawImage(map.image, camera.pos_x, camera.pos_y, map.image.naturalWidth * camera.zoom, map.image.naturalHeight * camera.zoom);
-
-};
-
-function update() {
+//Gestion des clicks sur les boutons du menu.
+document.onmousedown = checkClick;
+function checkClick(event) {
+    if(gameState == 'menu'){
+        //click sur mode solo
+        if(buttons[0].isClicked(event.clientX, event.clientY)){
+            gameState = 'solo';
+            initSoloGame();
+            startingTime = Date.now()+100;
+            console.log(gameState);
+        //click sur mode duo
+        }else if(buttons[1].isClicked(event.clientX, event.clientY)){
+            gameState = 'duo';
+            startingTime = Date.now()+100;
+            initDuoGame();
+            console.log(gameState);
+        }
+    }
+}
+function draw() {
     ctx.clearRect(0, 0, cnv.width, cnv.height);
-    ctx.drawImage(map.image, camera.pos_x, camera.pos_y, map.image.naturalWidth * camera.zoom, map.image.naturalHeight * camera.zoom);
-    ctx.fillStyle = "red";
-    ctx.fillRect(mouse.x - (58/ 2), mouse.y - (83 / 2), 58, 83);
-    camera.moved_by_mouse(mouse, limite_camera, 0.05);
-    ctx.strokeStyle = "red";
-    rect_collision[0].draw_rect();
+    ctx.drawImage(map.img, camera.pos_x, camera.pos_y, map.img.naturalWidth * camera.zoom, map.img.naturalHeight * camera.zoom);
+    draw_collision();
+    if(gameState === 'duo'){
+        player2.draw();
+        player1.draw();
+    }else if(gameState === 'solo'){
+        player1.draw();
+    }
+    
 }
 
-
-function update_all () {
-    update();
-    window.requestAnimationFrame(update_all);
-
+function update () {
+    changeGameState();
+    //draw();
+    //drawMenu();
+    //countDown();
 }
-window.requestAnimationFrame(update_all);
-
+setInterval(update, updateFrequency);

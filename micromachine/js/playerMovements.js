@@ -1,19 +1,23 @@
-let cnv = document.getElementById("myCanvas");
-let ctx = cnv.getContext("2d");
-let rotateRate = 2;
-let maxSpeed = 3;
-let acceleration = 0.02;
+/* let cnv = document.getElementById("myCanvas");
+let ctx = cnv.getContext("2d"); */
+let gameState = 'menu';
+let rotateRate = 4;
+
+let acceleration = 0.5;
 class vec2 {
     constructor(x, y) {
         this.x = x;
         this.y = y;
     }
 }
-let carSize = new vec2(40, 50);
+let carSize = new vec2(58, 83);
 
+//Convertion degré en radians
 function degToRadian(angle){
     return angle * Math.PI / 180;
 }
+
+//Rotation d'un point par rapport à un point origine
 function rotatePoint(pointX, pointY, originX, originY, angle) {
     angle = angle * Math.PI / 180.0;
     let nx = Math.cos(angle) * (pointX-originX) - Math.sin(angle) * (pointY-originY) + originX;
@@ -35,13 +39,15 @@ class player{
     constructor(pos, id){
         this.id = id;
         this.sprite = new sprite('js/asset/car'+ id +'.png');
-        this.collider;
         this.collider = [new vec2(pos.x, pos.y), new vec2(pos.x + carSize.x, pos.y), 
             new vec2(pos.x + carSize.x, pos.y + carSize.y), new vec2(pos.x, pos.y + carSize.y)];
         this.origin = new vec2(pos.x + carSize.x/2, pos.y + carSize.y/2);
         this.direction = 0; // angle en °
         this.speed = 0;
+        this.maxSpeed = 30;
     }
+    //Affiche le joueur dans la direction ou il se trouve
+    //On tourne le canvas sur le joueur
     draw(){
         ctx.save();
         ctx.translate(this.origin.x, this.origin.y);
@@ -51,6 +57,7 @@ class player{
 
         //this.drawCollider();
     }
+    //Affiche le collider du joueur (point par point)
     drawCollider(){
         ctx.beginPath();
         ctx.strokeStyle = 'red';
@@ -61,74 +68,83 @@ class player{
         ctx.lineTo(this.collider[0].x, this.collider[0].y);
         ctx.stroke();
     }
+    //Change la direction du joueur (entre 0 et 360°)
     rotate(angle){
         if(angle > 0 && this.direction + angle > 360){
             this.direction = this.direction + angle - 360;
         }else if (angle < 0 && this.direction + angle < 0){
-            this.direction = this.direction + angle | 0;
+            this.direction = this.direction + angle + 360;
         }else{
             this.direction += angle;
         }
         this.rotateCollider(angle);
     }
+    //Tourne point par point le collider du joueur autour du centre de la voiture
     rotateCollider(angle){
         for(let i =0; i < this.collider.length; i++){
             let cx = this.collider[i].x,
             cy = this.collider[i].y;
-            let newPoint = rotatePoint(cx, cy, this.origin.x, this.origin.y, angle)
+            let newPoint = rotatePoint(cx, cy, this.origin.x, this.origin.y, angle);
             this.collider[i].x = newPoint[0];
             this.collider[i].y = newPoint[1];
         }
     }
+    //Bouge tout les points du collider dans la direction du joueur
     moveColliderForward(){
         for(let i =0; i < this.collider.length; i++){
-            this.collider[i].x =  (this.collider[i].x + this.speed * Math.cos(degToRadian(this.direction-90)));
-            this.collider[i].y  = (this.collider[i].y + this.speed * Math.sin(degToRadian(this.direction-90)));
+            this.collider[i].x = (this.collider[i].x + this.speed * Math.cos(degToRadian(this.direction-90)));
+            this.collider[i].y = (this.collider[i].y + this.speed * Math.sin(degToRadian(this.direction-90)));
         }
     }
+    //Bouge tout les points du collider dans la direction du joueur
     moveColliderBackward(){
         for(let i =0; i < this.collider.length; i++){
             this.collider[i].x =  (this.collider[i].x + this.speed * Math.sin(degToRadian(-(this.direction))));
             this.collider[i].y  = (this.collider[i].y + this.speed * Math.cos(degToRadian(-(this.direction))));
         }
     }
-    moveForward(){
-        if(this.speed < maxSpeed){
+    //Bouge le point central dans la direction du joueur
+    moveForward() {
+        if(this.speed < this.maxSpeed){
             this.speed += acceleration;
         }else{
-            this.speed = maxSpeed;
+            this.speed = this.maxSpeed;
         }
         this.origin.x = (this.origin.x + this.speed * Math.cos(degToRadian(this.direction-90)));
         this.origin.y = (this.origin.y + this.speed * Math.sin(degToRadian(this.direction-90)));
         this.moveColliderForward();
     }
+    //Bouge le point central dans la direction du joueur
     moveBackward(){
-        if(this.speed < maxSpeed){
+        if(this.speed < this.maxSpeed){
             this.speed += acceleration/2;
         }else{
-            this.speed = maxSpeed/2;
+            this.speed = this.maxSpeed/2;
         }
         this.origin.x = (this.origin.x + this.speed * Math.sin(degToRadian(-(this.direction))));
         this.origin.y = (this.origin.y + this.speed * Math.cos(degToRadian(-(this.direction))));
         this.moveColliderBackward();
     }
     //Test de collision avec la route
-    collide(rectangle){}
+    collide(rectangle) {
+        for(let i = 0; i < this.collider.length; i++){
+            if(this.collider[i].x < rectangle.x1 || this.collider[i].y < rectangle.y1 ||
+                this.collider[i].x > rectangle.x2 || this.collider[i].y > rectangle.y2){
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    dead() {
+        for(let i = 0; i < this.collider.length; i++) 
+        this.collider.forEach (point => {
+            if (point.x > 0 && point.x < win_res && point.y > 0 && point.y < win_res) {
+                return false;
+            }
+        });
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //Touches Joueur 1
@@ -166,14 +182,17 @@ function keyDownTrigger(elem) {
     keyP1.forEach(testDown);
     keyP2.forEach(testDown);
 }
+
 addEventListener("keydown", keyDownTrigger);
 addEventListener("keyup", keyUPTrigger);
 
-let pos1 = new vec2(200, 200);
+//Joueur 1
+let pos1 = new vec2(300, 300);
 let player1 = new player(pos1, '1');
 player1.draw();
 
-let pos2 = new vec2(100, 100);
+//Joueur 2
+let pos2 = new vec2(420, 400);
 let player2 = new player(pos2, '2');
 player2.draw();
 
@@ -205,7 +224,14 @@ function updatePos() {
                     break;
             }
         }
-    });
+        if(keyP1[0].down === false && keyP1[2].down === false)
+        if (player1.speed > 0) {
+            player1.speed -= 0.05;
+        }
+        else {
+            player1.speed = 0;
+        }
+});
     keyP2.forEach(elem => {
         if (elem.down === true) {
             switch (elem.key) {
@@ -233,9 +259,13 @@ function updatePos() {
                     break;
             }
         }
+        if(keyP2[0].down === false && keyP2[2].down === false)
+            if (player2.speed > 0) {
+                player2.speed -= 0.05;
+            }
+            else {
+                player2.speed = 0;
+            }
+
     });
 }
-
-
-
-
