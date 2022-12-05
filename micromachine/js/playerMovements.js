@@ -137,13 +137,12 @@ class player{
     }
 
     dead() {
-        for(let i = 0; i < this.collider.length; i++) 
-        this.collider.forEach (point => {
-            if (point.x > 0 && point.x < win_res && point.y > 0 && point.y < win_res) {
-                return false;
-            }
-        });
+        if (this.origin.x < 0 || this.origin > win_res || 
+            this.origin.y < 0 || this.origin.y > win_res) {
+            return true;
+        }
     }
+    
 }
 
 

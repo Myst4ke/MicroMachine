@@ -72,8 +72,6 @@ function check_collision(player1, player2) {
                 
                 player1.maxSpeed = 10;
             }
-            console.log(in_box(player2));
-            console.log(player2.maxSpeed);
             if (in_box(player2)) {
                 player2.maxSpeed = 20;
             } else {

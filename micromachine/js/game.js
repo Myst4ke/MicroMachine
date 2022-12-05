@@ -1,4 +1,4 @@
-let checkpoint = [vec2()]
+
 let startingTime = Date.now();
 //
 let camera = new Camera(-100, -1400, 2);
