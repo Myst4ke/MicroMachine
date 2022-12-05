@@ -1,4 +1,3 @@
-
 let gameState = 'menu';
 let oldTime = Date.now();
 
@@ -9,6 +8,3 @@ function printTime(){
     ctx.fillText(date.toString(), 350, 580);
 }
 
-function drawGameState(){
-
-}
