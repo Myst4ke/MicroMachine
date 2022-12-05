@@ -25,15 +25,15 @@ class Rect {
         ctx.strokeRect(this.x1, this.y1, this.x2 - this.x1, this.y2 - this.y1);
     }
 }
-/* let rect_collision = [new Rect(192, -50, 192+tail_rout, 750), new Rect(1050, -937, 2048, -937+tail_rout),
+let rect_collision = [new Rect(192, -50, 192+tail_rout, 750), new Rect(1050, -937, 2048, -937+tail_rout),
                       new Rect(2111, -937, 2620, -937 + tail_rout), new Rect(2620, -850, 3550, -937+tail_rout),
                       new Rect(580, 786, 1535, 786+tail_rout), new Rect(1535, 873, 2090, 786+tail_rout),
                       new Rect(2090, 786, 2800,786+tail_rout), new Rect(2900, 100, 3113, 600),
                       new Rect(2815, -100, 2815+tail_rout, 100), new Rect(2815 , 600, 2815+tail_rout, 800),
                       new Rect(1950, -1150, 2200, -783), new Rect(1950, -707, 2200, -340), 
-                      new Rect(3120,-937, 3500, -837)  ]; */
+                      new Rect(3120,-937, 3500, -837)  ];
 
-let rect_collision = [new Rect(192, -50, 192+tail_rout, 750), new Rect(1050, -937, 2048, -937+tail_rout)];
+//let rect_collision = [new Rect(192, -50, 192+tail_rout, 750), new Rect(1050, -937, 2048, -937+tail_rout)];
 
 function draw_collision() {
     for (let i = 0; i < nb_rect; i++) {

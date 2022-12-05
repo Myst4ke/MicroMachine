@@ -116,7 +116,7 @@ class player{
         for(let i = 0; i < 3; i++){
             if(this.collider[i].x < rectangle.x1 || this.collider[i].y < rectangle.y1 ||
                 this.collider[i].x > rectangle.x2 || this.collider[i].y > rectangle.y2){
-                    console.log("Tu rentres putain de merde?");
+                    console.log("he ho tu y vas");
                     return false;
                 }
                 

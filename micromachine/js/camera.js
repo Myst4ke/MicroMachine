@@ -1,4 +1,4 @@
-let nb_rect = 2;
+let nb_rect = 13;
 
 class Map{
     constructor(img_src) {
@@ -19,17 +19,6 @@ class Camera {
         this.pos_y -= move_y;
     }
 
-    moved_by_mouse(mouse, limite, acceleration){ 
-        let move_x, move_y;
-        if (mouse.x < limite || mouse.y < limite || mouse.x >  win_res - limite || mouse.y > win_res - limite) {
-            move_x = (mouse.x - (win_res / 2)) * acceleration;
-            move_y = (mouse.y - (win_res / 2)) * acceleration;
-            this.move_cam(move_x, move_y);
-            for (let i = 0; i < nb_rect; i++) {
-                rect_collision[i].move_rect(-move_x, -move_y);
-            }
-        }
-    }
     moved_by_player(first, second, limit){ 
         let move_x, move_y;
         if (first.origin.x < limit && (first.direction < 360 && first.direction > 180) ||
