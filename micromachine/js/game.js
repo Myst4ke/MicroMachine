@@ -25,7 +25,7 @@ function printTime() {
 function countDown() {
     let count = (Date.now() - startingTime) / 1000 | 0;
     ctx.font = '48px Radioland';
-    if (count < 1) {
+    if (count < 3) {
         ctx.fillStyle = '#FFFFFF';
         ctx.fillText(Math.abs(count - 3).toString(), 360, 300);
     } else {
